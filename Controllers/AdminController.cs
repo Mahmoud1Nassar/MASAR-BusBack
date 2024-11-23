@@ -141,5 +141,12 @@ namespace MASAR.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet("ViewAllAnnouncementForAdmin")]
+        [Authorize(Policy = "RequireAdminRole")]
+        public async Task<List<AnnouncementDTO>> ViewAllAnnouncement()
+        {
+            return await _context.ViewAnnouncementsForAdmin();
+        }
     }
 }

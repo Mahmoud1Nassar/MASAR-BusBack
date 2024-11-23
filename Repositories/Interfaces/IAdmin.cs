@@ -17,5 +17,6 @@ namespace MASAR.Repositories.Interfaces
         public Task<Routing> CreateRouting(RoutingDTO routingDto);
         public Task<Schedule> CreateSchedule(ScheduleDTO scheduleDto);
         public Task<List<Schedule>> GetSchedulesByRouteId(string routeId);
+        public Task<List<AnnouncementDTO>> ViewAnnouncementsForAdmin();
     }
 }

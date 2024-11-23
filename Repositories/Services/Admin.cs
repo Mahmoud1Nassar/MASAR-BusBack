@@ -241,6 +241,19 @@ namespace MASAR.Repositories.Services
             await _context.SaveChangesAsync();
             return newSchedule;
         }
-        
+
+        public async Task<List<AnnouncementDTO>> ViewAnnouncementsForAdmin()
+        {
+            return await _context.Announcement
+                .Select(b => new AnnouncementDTO
+                {
+                    Title = b.Title,
+                    Content = b.Content,
+                    CreatedTime = b.CreatedTime,
+                    Audience = b.Audience
+                })
+                .ToListAsync();
+        }
+
     }
 }
