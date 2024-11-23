@@ -91,30 +91,38 @@ namespace MASAR.Repositories.Services
             var driverRoute = await _context.Schedule
                 .Where(a => a.DriverId == driverId)
                 .FirstOrDefaultAsync();
-   
+            if (driverRoute == null)
+                throw new Exception("Driver route not found");
             var routeDetails = await _context.Routing
                 .Where(a => a.RoutingId == driverRoute.RoutingId)
                 .Select(a => new
                 {
                     a.RouteName,
-                    StopPoints = a.StopPoints
+                    a.StopPoints
                 })
                 .FirstOrDefaultAsync();
-
+            if (routeDetails == null)
+                throw new Exception("Route details not found");
             var driverProfileBus = await _context.DriverProfile
                 .Where(a => a.DriverId == driverId)
+                .Include(a => a.User)
                 .FirstOrDefaultAsync();
-
+            if (driverProfileBus == null)
+                throw new Exception("Driver profile not found");
             var currentLocation = await _context.Bus
                 .Where(a => a.BusId == driverProfileBus.BusId)
                 .Select(a => a.CurrentLocation)
                 .FirstOrDefaultAsync();
-
+            if (currentLocation == null)
+                throw new Exception("Current location not found");
             return new StopPointWithCurrentLocation
             {
                 CurrentLocation = currentLocation,
-                StopPoints = routeDetails.StopPoints.ToList(),
-                RouteName = routeDetails.RouteName
+                StopPoints = routeDetails.StopPoints?.ToList() ?? new List<StopPoint>(),
+                RouteName = routeDetails.RouteName,
+                DriverName = driverProfileBus.User?.UserName ?? "Unknown",
+                PhoneNumber = driverProfileBus.User?.PhoneNumber ?? "Unknown",
+                BusId = driverProfileBus.BusId
             };
         }
 

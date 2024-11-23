@@ -7,5 +7,7 @@
         public string Driver { get; set; }
         public string BusId { get; set; }
         public List<StopPoint> StopPoints { get; set; }
+        public string DriverName { get; set; }
+        public string PhoneNumber { get; set; }
     }
 }
