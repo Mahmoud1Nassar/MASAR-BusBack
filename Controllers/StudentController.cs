@@ -45,6 +45,17 @@ namespace MASAR.Controllers
             return Ok(routes);
         }
 
+        [HttpGet("SearchRouteByName")]
+        public async Task<IActionResult> SearchRouteByName(string routeName)
+        {
+                var routes = await _context.SearchRouteByName(routeName);
+                if (routes == null)
+                {
+                    return NotFound("No routes found matching the search criteria.");
+                }
+                return Ok(routes);
+        }
+
         [HttpGet("getAllSchedules")]
         public async Task<ActionResult<IEnumerable<ScheduleDTO>>> GetAllSchedules()
         {

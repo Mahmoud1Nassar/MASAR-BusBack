@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using MASAR.Data;
 using MASAR.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Mailjet.Client.Resources;
 namespace MASAR.Repositories.Services
 {
     public class Student : IStudent
@@ -72,6 +73,11 @@ namespace MASAR.Repositories.Services
                 Console.WriteLine($"Error retrieving all routes: {e.Message}");
                 return new List<Routing>();
             }
+        }
+
+        public async Task<List<Routing>> SearchRouteByName(string routeName)
+        {
+            return await _context.Routing.Where(a => a.RouteName == routeName).ToListAsync();           
         }
 
         public async Task<List<ScheduleDTO>> GetAllSchedules()
