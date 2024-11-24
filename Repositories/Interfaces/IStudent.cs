@@ -15,5 +15,6 @@ namespace MASAR.Repositories.Interfaces
         public Task<List<string>> GetAllFavioretRoutForUser(string UserId);
         public Task<FavoriteRoute> AddRoutForUser(string StudentId, string RoutId);
         public Task<FavoriteRoute> RemoveRoutForUser(string StudentId, string RoutId);
+        public Task<List<Routing>> SearchRouteByName(string routeName);
     }
 }
