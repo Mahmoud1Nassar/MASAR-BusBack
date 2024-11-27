@@ -77,7 +77,8 @@ namespace MASAR.Repositories.Services
 
         public async Task<List<Routing>> SearchRouteByName(string routeName)
         {
-            return await _context.Routing.Where(a => a.RouteName == routeName).ToListAsync();           
+            return await _context.Routing 
+            .Where(sp => (string.IsNullOrEmpty(routeName) || sp.RouteName.Contains(routeName))).ToListAsync();
         }
 
         public async Task<List<ScheduleDTO>> GetAllSchedules()

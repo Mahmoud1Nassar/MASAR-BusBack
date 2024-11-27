@@ -37,39 +37,47 @@ namespace MASAR.Repositories.Services
         }
         public async Task<List<StopPointWithCurrentLocation>> GetAllBusesLocations()
         {
-            // Fetch all routes with their stop points
+            // Fetch all routes with schedules and stop points
             var routingDetails = await _context.Routing
-                .Include(r => r.StopPoints) // Include stop points for each route
+                .Include(r => r.Schedules) // Include schedules
+                .ThenInclude(s => s.User)  // Include user (driver)
                 .ToListAsync();
-            // Fetch all buses with current locations and driver information
+
+            // Fetch all buses with driver profiles and current locations
             var buses = await _context.Bus
                 .Include(b => b.DriverProfiles) // Include driver profiles
-                .ThenInclude(dp => dp.User) // Include user details
-                .Select(b => new
-                {
-                    b.BusId, // Include BusId
-                    b.CurrentLocation,
-                    b.DriverProfiles.DriverId,
-                    DriverName = b.DriverProfiles.User.UserName // Assuming UserName is the driver's name
-                })
+                .ThenInclude(dp => dp.User)     // Include driver user details
                 .ToListAsync();
-            // Combine data into the DTO format
-            var results = buses.Select(bus =>
+
+            // Map each route, bus, and driver into the DTO
+            var results = routingDetails.Select(route =>
             {
-                // Match the route based on stop points or fallback to a default match
-                var route = routingDetails.FirstOrDefault(r =>
-                    r.StopPoints.Any(sp => sp.Name == bus.CurrentLocation))
-                    ?? routingDetails.FirstOrDefault(r => r.RouteName != null);
-                return new StopPointWithCurrentLocation
+                // Find the schedules related to this route
+                var schedules = route.Schedules;
+
+                // Map each schedule to its corresponding bus and driver details
+                return schedules.Select(schedule =>
                 {
-                    RouteName = route?.RouteName ?? "No Route Assigned",
-                    CurrentLocation = bus.CurrentLocation ?? "Unknown",
-                    Driver = bus.DriverName, // Assign the driver's name
-                    BusId = bus.BusId // Assign the BusId
-                };
-            }).ToList();
+                    // Find the bus driven by the driver in this schedule
+                    var bus = buses.FirstOrDefault(dp => dp.DriverProfiles.DriverId == schedule.DriverId);
+
+                    // Return the final DTO
+                    return new StopPointWithCurrentLocation
+                    {
+                        CurrentLocation = bus?.CurrentLocation ?? "Unknown",
+                        RouteName = route.RouteName ?? "No Route Assigned",
+                        DriverName = bus?.DriverProfiles.User?.UserName ?? "Unknown",
+                        PhoneNumber = bus?.DriverProfiles.User?.PhoneNumber ?? "Not Available",
+                        BusId = bus?.BusId ?? "No Bus Assigned"
+                    };
+                }).ToList();
+            })
+            .SelectMany(x => x) // Flatten the nested lists into a single list
+            .ToList();
+
             return results;
         }
+
         public async Task<Bus> CreateBusInfo(BusDTO busDTO)
         {
             Bus bus = new Bus

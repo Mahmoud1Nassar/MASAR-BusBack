@@ -51,13 +51,15 @@ namespace MASAR.Repositories.Services
             int buses = await _context.Bus.CountAsync();
             int routes = await _context.Routing.CountAsync();
             int announcments = await _context.Announcement.CountAsync();
+            int scheadule = await _context.Schedule.CountAsync();
             return new DashboardData
             {
                 Drivers = drivers,
                 Maintenances = maintenances,
                 Buses = buses,
                 Routes = routes,
-                Announcement = announcments
+                Announcement = announcments,
+                Schedule = scheadule
             };
         }
 
